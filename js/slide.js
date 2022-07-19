@@ -10,8 +10,8 @@ export default class Slide {
     };
   }
 
-  moveSlide = () => {
-    this.slide.style.transform = `translate3d(${this.dist.finalPosition}px, 0, 0)`;
+  moveSlide = (positionX) => {
+    this.slide.style.transform = `translate3d(${positionX}px, 0, 0)`;
   };
 
   updatePosition = (clientX) => {
@@ -52,8 +52,39 @@ export default class Slide {
     this.wrapper.addEventListener("touchend", this.onEnd);
   };
 
+  // configuracao slides
+
+  slidePosition = (slide) => {
+    const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
+    return -(slide.offsetLeft - margin);
+  };
+
+  slidesConfig = () => {
+    this.slideArray = [...this.slide.children].map((element) => {
+      const position = this.slidePosition(element);
+      return { position, element };
+    });
+  };
+
+  slideIndexNav = (index) => {
+    const last = this.slideArray.length - 1;
+    this.index = {
+      prev: !index ? undefined : index - 1,
+      active: index,
+      next: index === last ? undefined : index + 1,
+    };
+  };
+
+  changeSlide = (index) => {
+    const activeSlide = this.slideArray[index];
+    this.moveSlide(activeSlide.position);
+    this.slideIndexNav(index);
+    this.dist.moved = activeSlide.position;
+  };
+
   init = () => {
     this.addSlideEvents();
+    this.slidesConfig();
     return this;
   };
 }
